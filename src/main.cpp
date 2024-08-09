@@ -9,6 +9,7 @@
 
 #include "bird.h"
 #include "pipes.h"
+#include "global_stuff.h"
 
 int main(){
     bn::core::init();
@@ -18,11 +19,12 @@ int main(){
     floor.set_priority(1);
     Bird bird;
     bn::optional<Pipes> pipes;
+    GlobalStuff global;
 
     while(true){
         if(bn::keypad::a_pressed() && bird.is_idle()){
             bird.set_idle(false);
-            pipes = Pipes();
+            pipes.emplace(Pipes(global));
         }
 
         floor.set_x(floor.x() - 1);

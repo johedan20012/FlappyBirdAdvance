@@ -7,6 +7,8 @@
 #include "bn_sprite_ptr.h"
 #include "bn_sprite_items_pipe.h"
 
+#include "global_stuff.h"
+
 class Pipe {
 private:
     bn::sprite_ptr sprs[2];
@@ -18,17 +20,19 @@ public:
 
     bn::fixed x() const;
     void set_x(bn::fixed x);
-    void set_pos(bn::fixed_point position);
+    void set_y(bn::fixed y);
 
     bn::fixed_rect hitbox() const;
 };
 
 class Pipes {
 private:
+    GlobalStuff &global;
+
     bn::array<Pipe, 8> pipes;
 
 public:
-    Pipes();
+    Pipes(GlobalStuff &_global);
     ~Pipes() = default;
 
     void update();
@@ -36,7 +40,7 @@ public:
     bool check_collision(const bn::fixed_rect& bird_hitbox);
 
 private:
-    void reset_pipe(int index);
+    void set_random_y(int index);
 };  
 
 #endif

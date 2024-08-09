@@ -22,9 +22,9 @@ void Pipe::set_x(bn::fixed x){
     sprs[1].set_x(x);
 }
 
-void Pipe::set_pos(bn::fixed_point position){
-    sprs[0].set_position(position);
-    sprs[1].set_position(position.x(), position.y() + 64);
+void Pipe::set_y(bn::fixed y){
+    sprs[0].set_y(y);
+    sprs[1].set_y(y + 64);
     if(flipped) sprs[1].set_y(sprs[1].y() - 128);
 }
 
@@ -33,7 +33,8 @@ bn::fixed_rect Pipe::hitbox() const {
 }
 
 
-Pipes::Pipes() : // -32 and 32 makes them close at them middle
+Pipes::Pipes(GlobalStuff& _global) : // -32 and 32 makes them close at them middle
+    global(_global),
     pipes{
         Pipe(true, bn::fixed_point(136,-52)), 
         Pipe(false, bn::fixed_point(136,52)), 
@@ -44,13 +45,18 @@ Pipes::Pipes() : // -32 and 32 makes them close at them middle
         Pipe(true, bn::fixed_point(376,-52)), 
         Pipe(false, bn::fixed_point(376,52))}
     {
+    for(int i = 0; i < pipes.size(); i+=2) set_random_y(i);
+    
 }
 
 void Pipes::update(){
-    for(Pipe& pipe : pipes){
-        pipe.set_x(pipe.x() - 1);
-        if(pipe.x() < -183){
-            pipe.set_x(136);
+    for(int i = 0; i < pipes.size(); i++){
+        pipes[i].set_x(pipes[i].x() - 1);
+        if(pipes[i].x() < -183){
+            pipes[i].set_x(136);
+            pipes[i+1].set_x(136);
+            set_random_y(i);
+            i++;
         }
     }
 }
@@ -64,6 +70,9 @@ bool Pipes::check_collision(const bn::fixed_rect& bird_hitbox){
     return false;
 }
 
-void Pipes::reset_pipe(int index){
-    pipes[index].set_x(140);
+void Pipes::set_random_y(int index){
+    // Middle point is in the range [-48,32] -> 80 - 48
+    bn::fixed middle = global.rng().get_unbiased_fixed(81)-48;
+    pipes[index].set_y(middle-52);
+    pipes[index+1].set_y(middle+52);
 }
