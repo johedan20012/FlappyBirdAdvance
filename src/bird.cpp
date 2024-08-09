@@ -13,7 +13,10 @@ void Bird::update(){
     if(idle) return;
 
     y_velocity += GRAVITY;
-    if(bn::keypad::a_pressed()) y_velocity = -2.2;
+    if(bn::keypad::a_pressed()) {
+        y_velocity = -2.2;
+        bn::sound_items::sfx_wing.play();
+    }
 
     spr.set_y(spr.y() + y_velocity);
     if(spr.y() > 48) spr.set_y(48); // 80 -24 (floor) - 8 (bird)

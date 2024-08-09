@@ -8,6 +8,7 @@
 #include "bn_sprite_animate_actions.h"
 #include "bn_sprite_items_bird.h"
 
+#include "bn_sound_items.h"
 
 class Bird {
 private:

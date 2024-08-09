@@ -9,6 +9,8 @@
 #include "bn_regular_bg_items_bg_day.h"
 #include "bn_regular_bg_items_bg_floor.h"
 
+#include "bn_sound_items.h"
+
 #include "bird.h"
 #include "pipes.h"
 #include "global_stuff.h"
@@ -46,6 +48,7 @@ int main(){
                 global.add_point();
                 score_label.clear();
                 text_number_generator.generate(global.score(), bn::fixed_point(0,-50), score_label);
+                bn::sound_items::sfx_point.play();
             }
 
             if(!bn::keypad::b_held()){
@@ -53,6 +56,7 @@ int main(){
                 pipes.reset();
                 global.reset_score();
                 bird.set_idle(true);
+                bn::sound_items::sfx_hit.play();
             }
             }
         }
