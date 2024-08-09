@@ -18,6 +18,7 @@ int main(){
     bn::regular_bg_ptr floor = bn::regular_bg_items::bg_floor.create_bg(8,48);
     floor.set_priority(1);
     Bird bird;
+
     bn::optional<Pipes> pipes;
     GlobalStuff global;
 
@@ -35,8 +36,14 @@ int main(){
         bird.update();
         if(pipes.has_value()){ 
             pipes.value().update();
+            if(pipes.value().check_passed(bird.hitbox())) {
+                global.add_point();
+                BN_LOG("Score: ", global.score());
+            }
+
             if(pipes.value().check_collision(bird.hitbox())){
                 pipes.reset();
+                global.reset_score();
                 bird.set_idle(true);
             }
         }
