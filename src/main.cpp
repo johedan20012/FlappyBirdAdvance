@@ -3,6 +3,8 @@
 #include "bn_vector.h"
 #include "bn_optional.h"
 
+#include "bn_sprite_items_huge_numbers_font.h"
+
 #include "bn_regular_bg_ptr.h"
 #include "bn_regular_bg_items_bg_day.h"
 #include "bn_regular_bg_items_bg_floor.h"
@@ -10,6 +12,7 @@
 #include "bird.h"
 #include "pipes.h"
 #include "global_stuff.h"
+#include "text_number_generator.h"
 
 int main(){
     bn::core::init();
@@ -21,6 +24,9 @@ int main(){
 
     bn::optional<Pipes> pipes;
     GlobalStuff global;
+    TextNumberGenerator text_number_generator(bn::sprite_items::huge_numbers_font,11);
+    bn::vector<bn::sprite_ptr, 10> score_label;
+    text_number_generator.generate(0, bn::fixed_point(0,-50), score_label);
 
     while(true){
         if(bn::keypad::a_pressed() && bird.is_idle()){
@@ -38,13 +44,16 @@ int main(){
             pipes.value().update();
             if(pipes.value().check_passed(bird.hitbox())) {
                 global.add_point();
-                BN_LOG("Score: ", global.score());
+                score_label.clear();
+                text_number_generator.generate(global.score(), bn::fixed_point(0,-50), score_label);
             }
 
+            if(!bn::keypad::b_held()){
             if(pipes.value().check_collision(bird.hitbox())){
                 pipes.reset();
                 global.reset_score();
                 bird.set_idle(true);
+            }
             }
         }
         bn::core::update();
