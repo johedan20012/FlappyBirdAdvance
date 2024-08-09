@@ -31,8 +31,23 @@ int main(){
     text_number_generator.generate(0, bn::fixed_point(0,-50), score_label);
 
     while(true){
+        if(bird.is_dead()){
+            bird.update();
+
+            if(bn::keypad::a_pressed() && bird.is_on_floor()){
+                bird = Bird();
+                pipes.reset();
+                global.reset_score();
+                score_label.clear();
+                text_number_generator.generate(global.score(), bn::fixed_point(0,-50), score_label);
+            }
+
+            bn::core::update();
+            continue;
+        }
+
         if(bn::keypad::a_pressed() && bird.is_idle()){
-            bird.set_idle(false);
+            bird.activate();
             pipes.emplace(Pipes(global));
         }
 
@@ -52,12 +67,7 @@ int main(){
             }
 
             if(!bn::keypad::b_held()){
-            if(pipes.value().check_collision(bird.hitbox())){
-                pipes.reset();
-                global.reset_score();
-                bird.set_idle(true);
-                bn::sound_items::sfx_hit.play();
-            }
+                if(pipes.value().check_collision(bird.hitbox())) bird.kill();
             }
         }
         bn::core::update();
