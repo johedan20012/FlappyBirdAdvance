@@ -12,6 +12,8 @@
 #include "bn_sprite_items_get_ready.h"
 #include "bn_sprite_palettes_actions.h"
 #include "bn_sprite_items_how_to_jump.h"
+#include "bn_sprite_items_button_over.h"
+#include "bn_sprite_items_gameover_buttons.h"
 
 #include "bird.h"
 #include "pipes.h"
@@ -51,6 +53,9 @@ private:
     bn::sprite_ptr medal;
     Sparks medal_sparks;
     bn::sprite_ptr new_label;
+    bn::sprite_ptr buttons[2];
+    bn::sprite_ptr button_over;
+    bool selected_button;
     bn::optional<bn::bg_palettes_fade_to_action> bg_fade_action;
     bn::optional<bn::sprite_palettes_fade_to_action> sprite_fade_action;
     bn::vector<bn::sprite_ptr, 10> final_score_label;

@@ -3,6 +3,7 @@
 
 #include "bn_regular_bg_ptr.h"
 #include "bn_regular_bg_items_bg_day.h"
+#include "bn_regular_bg_items_bg_night.h"
 #include "bn_regular_bg_items_bg_floor.h"
 
 class Background {
@@ -15,6 +16,8 @@ public:
     ~Background() = default;
 
     void update();
+
+    void change_time(bool night);
 };
 
 #endif

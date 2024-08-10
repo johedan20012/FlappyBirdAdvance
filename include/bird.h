@@ -29,7 +29,7 @@ private:
     bool dead;
 
 public:
-    Bird();
+    Bird(int color = 0);
     ~Bird() = default;
 
     void update();

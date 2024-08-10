@@ -12,6 +12,8 @@ int main(){
    
     while(true){
         play_screen.update();
+
+        global.rng().update();
         bn::core::update();
     }
 }

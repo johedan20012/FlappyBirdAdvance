@@ -1,12 +1,24 @@
 #include "bird.h"
 
-Bird::Bird() : 
+Bird::Bird(int color) : 
     spr(bn::sprite_items::bird.create_sprite(-64,0)),
     flap_action(bn::create_sprite_animate_action_forever(spr, 3, bn::sprite_items::bird.tiles_item(), 0, 1, 2, 1)),
     y_velocity(0),
     idle(true),
     dead(false){
-    
+    switch (color){
+    case 0:
+        break; // default
+    case 1:
+        spr.set_tiles(bn::sprite_items::bird.tiles_item(),3);
+        flap_action = bn::create_sprite_animate_action_forever(spr, 3, bn::sprite_items::bird.tiles_item(), 3, 4, 5, 4);
+        break;
+    default: // 2 -> red
+        spr.set_tiles(bn::sprite_items::bird.tiles_item(),6);
+        flap_action = bn::create_sprite_animate_action_forever(spr, 3, bn::sprite_items::bird.tiles_item(), 6, 7, 8, 7);
+        break;
+    }
+
     spr.set_bg_priority(2);
     spr.set_z_order(-1);
     spr.set_rotation_angle(0);

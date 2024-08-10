@@ -25,17 +25,27 @@ PlayScreen::PlayScreen(GlobalStuff& _global) :
     },
     medal(bn::sprite_items::medals.create_sprite(-32, -8)),
     medal_sparks(bn::fixed_rect(-32, -8, 24, 24), global),
-    new_label(bn::sprite_items::new_label.create_sprite(20, -8))
+    new_label(bn::sprite_items::new_label.create_sprite(20, -8)),
+    buttons{
+        bn::sprite_items::gameover_buttons.create_sprite(-32, 32),
+        bn::sprite_items::gameover_buttons.create_sprite(32, 32,1)
+    },
+    button_over(bn::sprite_items::button_over.create_sprite(-32, 32)),
+    selected_button(false)
     {    
     gameover_bg.set_visible(false);
     for(auto& label : gameover_label) label.set_visible(false);
     medal.set_visible(false);
     new_label.set_visible(false);
+    for(auto& button : buttons) button.set_visible(false);
+    button_over.set_visible(false);
     
     for(auto& label : gameover_label) label.set_bg_priority(0);
     gameover_bg.set_priority(0);
     medal.set_bg_priority(0);
     new_label.set_bg_priority(0);
+    for(auto& button : buttons) button.set_bg_priority(0);
+    button_over.set_bg_priority(0);
     global.huge_gen().generate(0, SCORE_POSITION, score_label);
 }
 
@@ -87,18 +97,14 @@ void PlayScreen::update_playing(){
     bird.update();
     pipes.value().update();
 
-    if(bn::keypad::b_held()) global.add_point();
-
     if(pipes.value().check_passed(bird.hitbox())) {
         global.add_point();
         score_label.clear();
         global.huge_gen().generate(global.score(), SCORE_POSITION, score_label);
         bn::sound_items::sfx_point.play();
     }
-
-    if(!bn::keypad::b_held()){
-        if(pipes.value().check_collision(bird.hitbox())) bird.kill(true);
-    }
+    
+    if(pipes.value().check_collision(bird.hitbox())) bird.kill(true);
     
     if (bird.is_dead()){
         bn::bg_palettes::set_brightness(1);
@@ -151,38 +157,49 @@ void PlayScreen::update_game_over(){
 
     if(show_gameover && medal.visible()) medal_sparks.update();
 
-    if(bird.is_on_floor() && bn::keypad::a_pressed()){
-        show_gameover = false;
-
-        bn::bg_palettes::set_fade(bn::color(0,0,0),0);
-        bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
-        bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
-        sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
-
-        bn::sound_items::sfx_swooshing.play();
-        while(!bg_fade_action.value().done()){
-            bg_fade_action.value().update();
-            sprite_fade_action.value().update();
-            bn::core::update();
+    if(bird.is_on_floor()){
+        if(bn::keypad::left_pressed() && selected_button){
+            selected_button = false;
+            button_over.set_x(-32);
+        }else if(bn::keypad::right_pressed() && !selected_button){
+            selected_button = true;
+            button_over.set_x(32);
         }
-        
-        bg_fade_action.reset();
-        sprite_fade_action.reset();
 
-        bird = Bird();
-        pipes.reset();
+        if(bn::keypad::a_pressed() && !selected_button){ // ok button
+            show_gameover = false;
 
-        global.reset_score();
-        score_label.clear();
-        global.huge_gen().generate(global.score(), SCORE_POSITION, score_label);
-        final_score_label.clear();
-        best_score_label.clear();
+            bn::bg_palettes::set_fade(bn::color(0,0,0),0);
+            bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
+            bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
+            sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
 
-        toggle_game_over_things(false);
-        toggle_get_ready_things(true);
-        medal_sparks.clear();
-        fade_in_ready = true;
-        state = STATE::GET_READY;
+            bn::sound_items::sfx_swooshing.play();
+            while(!bg_fade_action.value().done()){
+                bg_fade_action.value().update();
+                sprite_fade_action.value().update();
+                bn::core::update();
+            }
+            
+            bg_fade_action.reset();
+            sprite_fade_action.reset();
+
+            bird = Bird(global.rng().get_unbiased_int(3));
+            background.change_time(global.rng().get_unbiased_int(2));
+            pipes.reset();
+
+            global.reset_score();
+            score_label.clear();
+            global.huge_gen().generate(global.score(), SCORE_POSITION, score_label);
+            final_score_label.clear();
+            best_score_label.clear();
+
+            toggle_game_over_things(false);
+            toggle_get_ready_things(true);
+            medal_sparks.clear();
+            fade_in_ready = true;
+            state = STATE::GET_READY;
+        }
     }
 }
 
@@ -196,4 +213,7 @@ void PlayScreen::toggle_game_over_things(bool show){
     for(auto& label : gameover_label) label.set_visible(show);
     medal.set_visible(show);
     new_label.set_visible(show);
+    buttons[0].set_visible(show);
+    buttons[1].set_visible(show);
+    button_over.set_visible(show);
 }
