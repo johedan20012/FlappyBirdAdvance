@@ -6,8 +6,7 @@
 enum class SCREEN_TYPE {
     LOGOS,
     TITLE,
-    GAME,
-    SCOREBOARD
+    GAME
 };
 
 class Screen {

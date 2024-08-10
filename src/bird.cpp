@@ -1,7 +1,8 @@
 #include "bird.h"
 
-Bird::Bird(int color) : 
-    spr(bn::sprite_items::bird.create_sprite(-64,0)),
+Bird::Bird(int color,bn::fixed _x, bn::fixed _y_offset) : 
+    iddle_offset(_y_offset),
+    spr(bn::sprite_items::bird.create_sprite(_x,_y_offset)),
     flap_action(bn::create_sprite_animate_action_forever(spr, 3, bn::sprite_items::bird.tiles_item(), 0, 1, 2, 1)),
     y_velocity(0),
     idle(true),
@@ -31,8 +32,8 @@ void Bird::update(){
 
     if(idle){
         // Up and down
-        if(dir > 0 && spr.y() > 4) dir = -0.35;
-        if(dir < 0 && spr.y() < -4) dir = 0.35;
+        if(dir > 0  && spr.y() > iddle_offset+4) dir = -0.35;
+        if(dir < 0 && spr.y() < iddle_offset-4) dir = 0.35;
         spr.set_y(spr.y() + dir);
         return;
     } 

@@ -32,7 +32,8 @@ PlayScreen::PlayScreen(GlobalStuff& _global) :
     },
     button_over(bn::sprite_items::button_over.create_sprite(-32, 32)),
     selected_button(false)
-    {    
+    { 
+    global.reset_score();   
     gameover_bg.set_visible(false);
     for(auto& label : gameover_label) label.set_visible(false);
     medal.set_visible(false);
@@ -58,7 +59,7 @@ bn::optional<SCREEN_TYPE> PlayScreen::update() {
             update_playing();
             break;
         default: // STATE::GAME_OVER:
-            update_game_over();
+            return update_game_over();
             break;
     }
     return bn::nullopt;
@@ -115,20 +116,20 @@ void PlayScreen::update_playing(){
     }
 }
 
-void PlayScreen::update_game_over(){
+bn::optional<SCREEN_TYPE> PlayScreen::update_game_over(){
     bird.update();
 
     if(global_brightness > 0){
         global_brightness -= 0.0625;
         bn::bg_palettes::set_brightness(global_brightness);
         bn::sprite_palettes::set_brightness(global_brightness);
-        return;
+        return bn::nullopt;
     }
 
     if(wait_frames > 0){
         wait_frames--;
         if(wait_frames == 0) bn::sound_items::sfx_swooshing.play();
-        return;
+        return bn::nullopt;
     }
 
     if(bird.is_on_floor() && !show_gameover){
@@ -199,8 +200,27 @@ void PlayScreen::update_game_over(){
             medal_sparks.clear();
             fade_in_ready = true;
             state = STATE::GET_READY;
+        }else if(bn::keypad::a_pressed() && selected_button){ // menu button
+            bn::bg_palettes::set_fade(bn::color(0,0,0),0);
+            bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
+            bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
+            sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
+
+            bn::sound_items::sfx_swooshing.play();
+            while(!bg_fade_action.value().done()){
+                bg_fade_action.value().update();
+                sprite_fade_action.value().update();
+                bn::core::update();
+            }
+            
+            bg_fade_action.reset();
+            sprite_fade_action.reset();
+
+            return SCREEN_TYPE::TITLE;
         }
     }
+
+    return bn::nullopt;
 }
 
 void PlayScreen::toggle_get_ready_things(bool show){

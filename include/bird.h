@@ -18,6 +18,8 @@ private:
     static constexpr bn::fixed BIRD_WIDTH = 8;
     static constexpr bn::fixed BIRD_HEIGHT = 8;
 
+    bn::fixed iddle_offset;
+
     bn::sprite_ptr spr;
     bn::sprite_animate_action<4> flap_action;
 
@@ -29,7 +31,7 @@ private:
     bool dead;
 
 public:
-    Bird(int color = 0);
+    Bird(int color = 0,bn::fixed _x = -64, bn::fixed _y_offset = 0);
     ~Bird() = default;
 
     void update();

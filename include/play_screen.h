@@ -71,7 +71,7 @@ public:
 private:
     void update_get_ready();
     void update_playing();
-    void update_game_over();
+    bn::optional<SCREEN_TYPE> update_game_over();
 
     void toggle_get_ready_things(bool show);
     void toggle_game_over_things(bool show);

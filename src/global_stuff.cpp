@@ -2,7 +2,7 @@
 
 GlobalStuff::GlobalStuff() : 
     save(),
-    _score(11),
+    _score(),
     huge_generator(bn::sprite_items::huge_numbers_font,11),
     normal_generator(bn::sprite_items::numbers_font),
     small_generator(bn::sprite_items::small_numbers_font,6)
