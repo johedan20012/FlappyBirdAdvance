@@ -17,7 +17,13 @@ void Bird::update(){
 
     flap_action.update();
 
-    if(idle) return;
+    if(idle){
+        // Up and down
+        if(dir > 0 && spr.y() > 4) dir = -0.35;
+        if(dir < 0 && spr.y() < -4) dir = 0.35;
+        spr.set_y(spr.y() + dir);
+        return;
+    } 
 
     y_velocity += GRAVITY;
     if(bn::keypad::a_pressed() & !dead) {
@@ -30,12 +36,13 @@ void Bird::update(){
         spr.set_y(FLOOR_Y); 
         if(!dead) kill();
     }
+    if(spr.y() < -180) spr.set_y(-180); // Can't cheat the game
     
     // Calculate angle of rotation based on velocity,
     // 22.5 degrees max with velocity > 0
     // -90 degrees max with velocity in range [0,4]
     if(y_velocity < 0) angle = 22.5;
-    else angle = ((((3-bn::min(y_velocity,bn::fixed(3)))*112.5) / 3 )+247.5) % 360; // 360-112.5 
+    else angle = ((((3-bn::min(y_velocity,bn::fixed(3)))*112.5) / 3 )+270) % 360; // 360-112.5 
     if(is_on_floor()) angle = 270;
     spr.set_rotation_angle(angle);
 }
@@ -46,12 +53,13 @@ bool Bird::is_idle() const{
 
 void Bird::activate(){
     idle = false;
+    spr.set_y(0);
 }
 
-void Bird::kill(){
+void Bird::kill(bool hit_pipe){
     bn::sound_items::sfx_hit.play();
     dead = true;
-    bn::sound_items::sfx_die.play();
+    if(hit_pipe) bn::sound_items::sfx_die.play();
 }
 
 bool Bird::is_dead() const{

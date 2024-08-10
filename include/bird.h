@@ -25,6 +25,7 @@ private:
     bn::fixed angle;
 
     bool idle;
+    bn::fixed dir = 0.125;
     bool dead;
 
 public:
@@ -36,7 +37,7 @@ public:
     bool is_idle() const;
     void activate();
 
-    void kill();
+    void kill(bool hit_pipe = false);
     bool is_dead() const;
 
     bool is_on_floor() const;
