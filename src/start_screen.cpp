@@ -13,9 +13,10 @@ StartScreen::StartScreen() :
     play_button(bn::sprite_items::play_button.create_sprite(0, 24)),
     copy_right(bn::sprite_items::copyright.create_sprite(0, 52)),
     port_by{
-        bn::sprite_items::port_by.create_sprite(-28, 66),
-        bn::sprite_items::port_by.create_sprite(4, 66,1),
-        bn::sprite_items::port_by.create_sprite(36, 66,2)
+        bn::sprite_items::port_by.create_sprite(-44, 66),
+        bn::sprite_items::port_by.create_sprite(-12, 66,1),
+        bn::sprite_items::port_by.create_sprite(20, 66,2),
+        bn::sprite_items::port_by.create_sprite(52, 66,3)
     }
     {
     bg_fade_action = bn::bg_palettes_fade_to_action(16, 0);

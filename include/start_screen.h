@@ -23,7 +23,7 @@ private:
     bn::sprite_ptr logo[3];
     bn::sprite_ptr play_button;
     bn::sprite_ptr copy_right;
-    bn::sprite_ptr port_by[3];
+    bn::sprite_ptr port_by[4];
 
     bn::optional<bn::bg_palettes_fade_to_action> bg_fade_action;
     bn::optional<bn::sprite_palettes_fade_to_action> sprite_fade_action;
