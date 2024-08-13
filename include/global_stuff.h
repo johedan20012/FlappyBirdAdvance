@@ -14,6 +14,7 @@ class GlobalStuff{
 private:
     Save save;
 
+    bool portrait_mode;
     bn::random _rng;
     int _score;
 
@@ -25,6 +26,9 @@ public:
     ~GlobalStuff() = default;
 
     Save& save_data();
+
+    bool is_portrait_mode() const;
+    void toggle_portrait_mode();
 
     bn::random& rng();
 

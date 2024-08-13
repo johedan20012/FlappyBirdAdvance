@@ -10,20 +10,25 @@
 
 #include "bn_sound_items.h"
 
+#include "global_stuff.h"
+
 class Bird {
 private:
-    static constexpr bn::fixed FLOOR_Y = 58; // 80 -16 (floor) - 6 (bird)
+    static constexpr bn::fixed FLOOR_LEVEL_LANDSCAPE = 58; // 80 -16 (floor) - 6 (bird)
+    static constexpr bn::fixed FLOOR_LEVEL_PORTRAIT = -52; // -120 +64 (floor) + 6 (bird)
     static constexpr bn::fixed GRAVITY = 0.096; // Pixels/Frames^2 converted from 7.63 m/s^2 assuming 1m=48px and 1s=60frames
     static constexpr bn::fixed JUMP_VELOCITY = -1.85;
     static constexpr bn::fixed BIRD_WIDTH = 8;
     static constexpr bn::fixed BIRD_HEIGHT = 8;
+
+    bool portrait_mode;
 
     bn::fixed iddle_offset;
 
     bn::sprite_ptr spr;
     bn::sprite_animate_action<4> flap_action;
 
-    bn::fixed y_velocity;
+    bn::fixed moving_axis_velocity;
     bn::fixed angle;
 
     bool idle;
@@ -31,7 +36,7 @@ private:
     bool dead;
 
 public:
-    Bird(int color = 0,bn::fixed _x = -64, bn::fixed _y_offset = 0);
+    Bird(GlobalStuff& _global,int color = 0,bn::fixed _static_axis_pos = -64, bn::fixed _moving_axis_offset = 0);
     ~Bird() = default;
 
     void update();

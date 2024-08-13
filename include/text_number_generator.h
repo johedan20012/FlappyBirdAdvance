@@ -15,7 +15,7 @@ public:
     TextNumberGenerator(bn::sprite_item _font,int _number_width);
     ~TextNumberGenerator() = default;
 
-    void generate(int number,bn::fixed_point pos, bn::ivector<bn::sprite_ptr>& number_sprites);
+    void generate(int number,bn::fixed_point pos, bn::ivector<bn::sprite_ptr>& number_sprites, bool portrait_mode = false);
 };
 
 

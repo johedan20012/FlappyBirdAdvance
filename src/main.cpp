@@ -12,7 +12,7 @@ int main(){
     bn::core::init();
 
     GlobalStuff global;
-    bn::unique_ptr<Screen> current_screen(bn::make_unique<StartScreen>());
+    bn::unique_ptr<Screen> current_screen(bn::make_unique<StartScreen>(global));
     bn::optional<SCREEN_TYPE> next_screen;
 
     while(true){
@@ -24,7 +24,7 @@ int main(){
                     break;
                 case SCREEN_TYPE::TITLE:
                     current_screen.reset();
-                    current_screen = bn::make_unique<StartScreen>();
+                    current_screen = bn::make_unique<StartScreen>(global);
                     break;
                 default : // SCREEN_TYPE::GAME:
                     current_screen.reset();

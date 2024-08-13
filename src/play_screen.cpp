@@ -4,33 +4,34 @@
 
 PlayScreen::PlayScreen(GlobalStuff& _global) :
     global(_global),
+    portrait_mode(global.is_portrait_mode()),
     state(STATE::GET_READY),
-    background(),
-    bird(),
+    background(_global),
+    bird(global,0,INITIAL_BIRD_POS[portrait_mode].x(),INITIAL_BIRD_POS[portrait_mode].y()),
     pipes(),
     fade_in_ready(true),
     get_ready_label{
-        bn::sprite_items::get_ready.create_sprite(-32, -24),
-        bn::sprite_items::get_ready.create_sprite(0,   -24,1),
-        bn::sprite_items::get_ready.create_sprite(32,  -24,2)
+        bn::sprite_items::get_ready.create_sprite(GET_READY_LABEL_POSITIONS[portrait_mode][0]),
+        bn::sprite_items::get_ready.create_sprite(GET_READY_LABEL_POSITIONS[portrait_mode][1],1),
+        bn::sprite_items::get_ready.create_sprite(GET_READY_LABEL_POSITIONS[portrait_mode][2],2)
     },
-    how_2_jump_label(bn::sprite_items::how_to_jump.create_sprite(0, 8)),
+    how_2_jump_label((portrait_mode) ? bn::sprite_items::how_to_jump_portrait.create_sprite(8,0) : bn::sprite_items::how_to_jump.create_sprite(0, 8)),
     show_gameover(false),
     global_brightness(0),
-    gameover_bg(bn::regular_bg_items::bg_gameover.create_bg(8, 48)),
+    gameover_bg((portrait_mode)? bn::regular_bg_items::bg_gameover_portrait.create_bg(8, 48) :bn::regular_bg_items::bg_gameover.create_bg(8, 48)),
     gameover_label{
-        bn::sprite_items::gameover.create_sprite(-32, -48),
-        bn::sprite_items::gameover.create_sprite(0, -48,1),
-        bn::sprite_items::gameover.create_sprite(32, -48,2)
+        bn::sprite_items::gameover.create_sprite(GAMEOVER_LABEL_POSITIONS[portrait_mode][0],0),
+        bn::sprite_items::gameover.create_sprite(GAMEOVER_LABEL_POSITIONS[portrait_mode][1],1),
+        bn::sprite_items::gameover.create_sprite(GAMEOVER_LABEL_POSITIONS[portrait_mode][2],2)
     },
-    medal(bn::sprite_items::medals.create_sprite(-32, -8)),
-    medal_sparks(bn::fixed_rect(-32, -8, 24, 24), global),
-    new_label(bn::sprite_items::new_label.create_sprite(20, -8)),
+    medal(bn::sprite_items::medals.create_sprite(MEDAL_POSITION[portrait_mode])),
+    medal_sparks(bn::fixed_rect(MEDAL_POSITION[portrait_mode].x(),MEDAL_POSITION[portrait_mode].y(), 24,24), global),
+    new_label(bn::sprite_items::new_label.create_sprite(NEW_LABEL_POSITION[portrait_mode])),
     buttons{
-        bn::sprite_items::gameover_buttons.create_sprite(-32, 32),
-        bn::sprite_items::gameover_buttons.create_sprite(32, 32,1)
+        bn::sprite_items::gameover_buttons.create_sprite(BUTTONS_POSITIONS[portrait_mode][0],0),
+        bn::sprite_items::gameover_buttons.create_sprite(BUTTONS_POSITIONS[portrait_mode][1],1)
     },
-    button_over(bn::sprite_items::button_over.create_sprite(-32, 32)),
+    button_over(bn::sprite_items::button_over.create_sprite(BUTTONS_POSITIONS[portrait_mode][0])),
     selected_button(false)
     { 
     global.reset_score();   
@@ -47,7 +48,16 @@ PlayScreen::PlayScreen(GlobalStuff& _global) :
     new_label.set_bg_priority(0);
     for(auto& button : buttons) button.set_bg_priority(0);
     button_over.set_bg_priority(0);
-    global.huge_gen().generate(0, SCORE_POSITION, score_label);
+    global.huge_gen().generate(0, SCORE_POSITION[portrait_mode], score_label,portrait_mode);
+
+    if(portrait_mode){
+        for(auto& label : get_ready_label) label.set_rotation_angle(270);
+        for(auto& label : gameover_label) label.set_rotation_angle(270);
+        medal.set_rotation_angle(270);
+        new_label.set_rotation_angle(270);
+        for(auto& button : buttons) button.set_rotation_angle(270);
+        button_over.set_rotation_angle(270);
+    }
 }
 
 bn::optional<SCREEN_TYPE> PlayScreen::update() {
@@ -81,7 +91,7 @@ void PlayScreen::update_get_ready(){
         fade_in_ready = false;
     }
 
-    if(bn::keypad::a_pressed()){
+    if(bn::keypad::a_pressed() || (portrait_mode && bn::keypad::right_pressed())){
         toggle_get_ready_things(false);
 
         state = STATE::PLAYING;
@@ -101,7 +111,7 @@ void PlayScreen::update_playing(){
     if(pipes.value().check_passed(bird.hitbox())) {
         global.add_point();
         score_label.clear();
-        global.huge_gen().generate(global.score(), SCORE_POSITION, score_label);
+        global.huge_gen().generate(global.score(), SCORE_POSITION[portrait_mode], score_label,portrait_mode);
         bn::sound_items::sfx_point.play();
     }
     
@@ -143,7 +153,7 @@ bn::optional<SCREEN_TYPE> PlayScreen::update_game_over(){
             medal.set_visible(false);
         }
         score_label.clear();
-        global.normal_gen().generate(global.score(), FINAL_SCORE_POSITION, final_score_label);
+        global.normal_gen().generate(global.score(), FINAL_SCORE_POSITION[portrait_mode], final_score_label,portrait_mode);
         if(global.save_data().is_high_score(global.score())) {
             new_label.set_visible(true);
             global.save_data().set_high_score(global.score());
@@ -151,7 +161,7 @@ bn::optional<SCREEN_TYPE> PlayScreen::update_game_over(){
         }else{
             new_label.set_visible(false);
         } 
-        global.normal_gen().generate(global.save_data().high_score(), BEST_SCORE_POSITION, best_score_label);
+        global.normal_gen().generate(global.save_data().high_score(), BEST_SCORE_POSITION[portrait_mode], best_score_label,portrait_mode);
 
         show_gameover = true;
     }
@@ -159,64 +169,68 @@ bn::optional<SCREEN_TYPE> PlayScreen::update_game_over(){
     if(show_gameover && medal.visible()) medal_sparks.update();
 
     if(bird.is_on_floor()){
-        if(bn::keypad::left_pressed() && selected_button){
+        if(((bn::keypad::left_pressed() && !portrait_mode) || (bn::keypad::up_pressed() && portrait_mode)) && selected_button){
             selected_button = false;
-            button_over.set_x(-32);
-        }else if(bn::keypad::right_pressed() && !selected_button){
+            if(portrait_mode) button_over.set_y(BUTTONS_POSITIONS[portrait_mode][0].y());
+            else button_over.set_x(BUTTONS_POSITIONS[portrait_mode][0].x());
+        }else if(((bn::keypad::right_pressed() && !portrait_mode) || (bn::keypad::down_pressed() && portrait_mode)) && !selected_button){
             selected_button = true;
-            button_over.set_x(32);
+            if(portrait_mode) button_over.set_y(BUTTONS_POSITIONS[portrait_mode][1].y());
+            else button_over.set_x(BUTTONS_POSITIONS[portrait_mode][1].x());
         }
 
-        if(bn::keypad::a_pressed() && !selected_button){ // ok button
-            show_gameover = false;
+        if(bn::keypad::a_pressed() || (bn::keypad::right_pressed() && portrait_mode)){
+            if(!selected_button){ // ok button
+                show_gameover = false;
 
-            bn::bg_palettes::set_fade(bn::color(0,0,0),0);
-            bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
-            bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
-            sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
+                bn::bg_palettes::set_fade(bn::color(0,0,0),0);
+                bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
+                bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
+                sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
 
-            bn::sound_items::sfx_swooshing.play();
-            while(!bg_fade_action.value().done()){
-                bg_fade_action.value().update();
-                sprite_fade_action.value().update();
-                bn::core::update();
+                bn::sound_items::sfx_swooshing.play();
+                while(!bg_fade_action.value().done()){
+                    bg_fade_action.value().update();
+                    sprite_fade_action.value().update();
+                    bn::core::update();
+                }
+                
+                bg_fade_action.reset();
+                sprite_fade_action.reset();
+
+                bird = Bird(global,global.rng().get_unbiased_int(3),INITIAL_BIRD_POS[portrait_mode].x(),INITIAL_BIRD_POS[portrait_mode].y());
+                background.change_time(global.rng().get_unbiased_int(2));
+                pipes.reset();
+
+                global.reset_score();
+                score_label.clear();
+                global.huge_gen().generate(global.score(), SCORE_POSITION[portrait_mode], score_label,portrait_mode);
+                final_score_label.clear();
+                best_score_label.clear();
+
+                toggle_game_over_things(false);
+                toggle_get_ready_things(true);
+                medal_sparks.clear();
+                fade_in_ready = true;
+                state = STATE::GET_READY;
+            }else{ // menu button
+                bn::bg_palettes::set_fade(bn::color(0,0,0),0);
+                bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
+                bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
+                sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
+
+                bn::sound_items::sfx_swooshing.play();
+                while(!bg_fade_action.value().done()){
+                    bg_fade_action.value().update();
+                    sprite_fade_action.value().update();
+                    bn::core::update();
+                }
+                
+                bg_fade_action.reset();
+                sprite_fade_action.reset();
+
+                return SCREEN_TYPE::TITLE;
             }
-            
-            bg_fade_action.reset();
-            sprite_fade_action.reset();
-
-            bird = Bird(global.rng().get_unbiased_int(3));
-            background.change_time(global.rng().get_unbiased_int(2));
-            pipes.reset();
-
-            global.reset_score();
-            score_label.clear();
-            global.huge_gen().generate(global.score(), SCORE_POSITION, score_label);
-            final_score_label.clear();
-            best_score_label.clear();
-
-            toggle_game_over_things(false);
-            toggle_get_ready_things(true);
-            medal_sparks.clear();
-            fade_in_ready = true;
-            state = STATE::GET_READY;
-        }else if(bn::keypad::a_pressed() && selected_button){ // menu button
-            bn::bg_palettes::set_fade(bn::color(0,0,0),0);
-            bg_fade_action = bn::bg_palettes_fade_to_action(16, 1);
-            bn::sprite_palettes::set_fade(bn::color(0,0,0),0);
-            sprite_fade_action = bn::sprite_palettes_fade_to_action(16, 1);
-
-            bn::sound_items::sfx_swooshing.play();
-            while(!bg_fade_action.value().done()){
-                bg_fade_action.value().update();
-                sprite_fade_action.value().update();
-                bn::core::update();
-            }
-            
-            bg_fade_action.reset();
-            sprite_fade_action.reset();
-
-            return SCREEN_TYPE::TITLE;
         }
     }
 

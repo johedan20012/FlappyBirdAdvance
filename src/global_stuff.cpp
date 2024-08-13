@@ -2,6 +2,8 @@
 
 GlobalStuff::GlobalStuff() : 
     save(),
+    portrait_mode(false),
+    _rng(),
     _score(),
     huge_generator(bn::sprite_items::huge_numbers_font,11),
     normal_generator(bn::sprite_items::numbers_font),
@@ -12,6 +14,14 @@ GlobalStuff::GlobalStuff() :
 
 Save& GlobalStuff::save_data(){
     return save;
+}
+
+bool GlobalStuff::is_portrait_mode() const{
+    return portrait_mode;
+}
+
+void GlobalStuff::toggle_portrait_mode(){
+    portrait_mode = !portrait_mode;
 }
 
 bn::random& GlobalStuff::rng(){

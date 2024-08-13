@@ -4,6 +4,7 @@
 #include "bn_bg_palettes.h"
 #include "bn_bg_palettes_actions.h"
 #include "bn_regular_bg_items_bg_gameover.h"
+#include "bn_regular_bg_items_bg_gameover_portrait.h"
 
 #include "bn_sprite_palettes.h"
 #include "bn_sprite_items_medals.h"
@@ -14,6 +15,7 @@
 #include "bn_sprite_items_how_to_jump.h"
 #include "bn_sprite_items_button_over.h"
 #include "bn_sprite_items_gameover_buttons.h"
+#include "bn_sprite_items_how_to_jump_portrait.h"
 
 #include "bird.h"
 #include "pipes.h"
@@ -30,11 +32,45 @@ enum class STATE {
 
 class PlayScreen : public Screen { 
 private:
-    static constexpr bn::fixed_point SCORE_POSITION = bn::fixed_point(0,-56);
-    static constexpr bn::fixed_point FINAL_SCORE_POSITION = bn::fixed_point(44,-18);
-    static constexpr bn::fixed_point BEST_SCORE_POSITION = bn::fixed_point(44,2);
+    static constexpr bn::fixed_point INITIAL_BIRD_POS[2] = {
+        bn::fixed_point(-64, 0),
+        bn::fixed_point(-32, 16)
+    };
+    static constexpr bn::fixed_point GET_READY_LABEL_POSITIONS[2][3] = {
+        {bn::fixed_point(-32, -24), bn::fixed_point(0, -24), bn::fixed_point(32, -24)},
+        {bn::fixed_point(56, -32), bn::fixed_point(56, 0), bn::fixed_point(56, 32)}
+    };
+    static constexpr bn::fixed_point GAMEOVER_LABEL_POSITIONS[2][3] = {
+        {bn::fixed_point(-32, -48), bn::fixed_point(0, -48), bn::fixed_point(32, -48)},
+        {bn::fixed_point(64, -32), bn::fixed_point(64, 0), bn::fixed_point(64, 32)}
+    };
+    static constexpr bn::fixed_point MEDAL_POSITION[2] = {
+        bn::fixed_point(-32, -8),
+        bn::fixed_point(23, -32)
+    };
+    static constexpr bn::fixed_point NEW_LABEL_POSITION[2] = {
+        bn::fixed_point(20, -8),
+        bn::fixed_point(23, 20)
+    };
+    static constexpr bn::fixed_point BUTTONS_POSITIONS[2][2] = {
+        {bn::fixed_point(-32, 32), bn::fixed_point(32, 32)},
+        {bn::fixed_point(-17, -32), bn::fixed_point(-17, 32)}
+    };
+    static constexpr bn::fixed_point SCORE_POSITION[2] = {
+        bn::fixed_point(0,-56),
+        bn::fixed_point(100,0)
+    };
+    static constexpr bn::fixed_point FINAL_SCORE_POSITION[2] = {
+        bn::fixed_point(44,-18),
+        bn::fixed_point(33,44)
+    };
+    static constexpr bn::fixed_point BEST_SCORE_POSITION[2] = {
+        bn::fixed_point(44,2),
+        bn::fixed_point(12,44)
+    };
 
     GlobalStuff& global;
+    bool portrait_mode;
     STATE state;
 
     Background background;

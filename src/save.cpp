@@ -21,7 +21,7 @@ void Save::load_from_sram() {
 
         _data.label = expected_label;
 
-        _data.high_score = 10;
+        _data.high_score = 0; // 10
 
         save_to_sram();
     }
