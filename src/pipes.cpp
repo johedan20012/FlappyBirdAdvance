@@ -1,7 +1,5 @@
 #include "pipes.h"
 
-#include "bn_log.h"
-
 PipePair::PipePair(bn::fixed_point position, bool _portrait_mode, bn::fixed _gap) :
     portrait_mode(_portrait_mode),
     half_gap(_gap/2),
@@ -12,7 +10,6 @@ PipePair::PipePair(bn::fixed_point position, bool _portrait_mode, bn::fixed _gap
         (portrait_mode)? bn::sprite_items::pipe_portrait.create_sprite(position.x()-half_gap-32,position.y()) : bn::sprite_items::pipe.create_sprite(position.x(), position.y()+half_gap+32), 
         (portrait_mode)? bn::sprite_items::pipe_portrait.create_sprite(position.x()-half_gap-96,position.y(),1) : bn::sprite_items::pipe.create_sprite(position.x(), position.y()+half_gap+96,1)}
     {
-    BN_LOG("PORTRAIT MODE PipePair: ", portrait_mode);
     if(portrait_mode) bottom_sprs[0].set_horizontal_flip(true);
     else top_sprs[0].set_vertical_flip(true);
 
@@ -81,7 +78,6 @@ Pipes::Pipes(GlobalStuff& _global) : // -32 and 32 makes them close at them midd
         PipePair(PIPES_INITIAL_POS[portrait_mode][3], portrait_mode)},
     current_pipe(0)
     {
-    BN_LOG("PORTRAIT MODE: ", portrait_mode);
     for(int i = 0; i < pipes.size(); i++) set_random_static_ax(i);
 }
 
@@ -112,7 +108,7 @@ bool Pipes::check_passed(const bn::fixed_rect& bird_hitbox){
 
 void Pipes::set_random_static_ax(int index){
     // Middle point is in the range [-48,32] for landscape
-    // Middle point is in the range [-16,88] for portrait
-    bn::fixed middle = (portrait_mode)? global.rng().get_unbiased_fixed(105)-16 : global.rng().get_unbiased_fixed(81)-48;
+    // Middle point is in the range [-16,80] for portrait
+    bn::fixed middle = (portrait_mode)? global.rng().get_unbiased_fixed(97)-16 : global.rng().get_unbiased_fixed(81)-48;
     pipes[index].set_pos_static_ax(middle);
 }

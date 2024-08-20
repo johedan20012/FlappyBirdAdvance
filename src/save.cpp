@@ -1,7 +1,5 @@
 #include "save.h"
 
-#include "bn_log.h"
-
 Save::Save() : _data() {}
 
 void Save::save_to_sram() {
@@ -17,11 +15,10 @@ void Save::load_from_sram() {
     expected_label_stream.append("FLAPPY");
 
     if(_data.label != expected_label) {
-        BN_LOG("Save data not found");
 
         _data.label = expected_label;
 
-        _data.high_score = 0; // 10
+        _data.high_score = 10; 
 
         save_to_sram();
     }
